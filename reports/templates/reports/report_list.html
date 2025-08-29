@@ -1,65 +1,235 @@
-{# reports/templates/reports/report_list.html #}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ page_title }} - Luanda Store</title>
+    <title>Génération de Rapports</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f0f2f5; }
-        .container { max-width: 960px; margin: 20px auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h1 { color: #17a2b8; } /* Couleur bleue/cyan pour les rapports */
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #e2f0f4; }
-        .no-reports { text-align: center; color: #555; margin-top: 20px; }
-        .back-link { margin-top: 30px; display: block; text-align: right; }
-        .back-link a { text-decoration: none; color: #007bff; font-weight: bold; }
-        .back-link a:hover { text-decoration: underline; }
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in-down {
+            animation: fadeInDown 0.5s ease-out forwards;
+        }
+        /* Style pour le bouton actif */
+        .active-filter-btn {
+            background-color: #d1d5db; /* gray-300 */
+            border-color: #9ca3af; /* gray-400 */
+            font-weight: 600; /* semi-bold */
+            color: #1f2937; /* gray-800 */
+        }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>{{ page_title }}</h1>
+<body class="bg-gray-100 font-sans antialiased text-gray-800">
 
-        {% if reports %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Boutique</th>
-                        <th>Mois/Année</th>
-                        <th>Chiffre d'affaires</th>
-                        <th>Nombre de ventes</th>
-                        <th>Généré le</th>
-                        <th>Fichier</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for report in reports %}
-                    <tr>
-                        <td>{{ report.boutique.name }}</td>
-                        <td>{{ report.month }}/{{ report.year }}</td>
-                        <td>{{ report.total_revenue }} FDJ</td> {# Ajoutez votre devise locale #}
-                        <td>{{ report.num_sales }}</td>
-                        <td>{{ report.generated_at|date:"d M Y H:i" }}</td>
-                        <td>
-                            {% if report.report_file %}
-                                <a href="{{ report.report_file.url }}" target="_blank">Voir</a>
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p class="no-reports">Aucun rapport n'a été généré pour le moment.</p>
+    <div class="container mx-auto mt-8 p-4 md:p-8">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 flex items-center">
+                <i class="fas fa-chart-line text-blue-600 mr-4 text-4xl md:text-5xl"></i>
+                {% trans "Génération de Rapports" %}
+            </h1>
+        </div>
+
+        {% if messages %}
+            <div class="space-y-4 mb-6">
+                {% for message in messages %}
+                    <div class="px-6 py-4 rounded-xl font-medium text-white shadow-lg flex items-center gap-4 animate-fade-in-down {% if message.tags == 'success' %}bg-green-600{% elif message.tags == 'error' %}bg-red-600{% elif message.tags == 'info' %}bg-blue-600{% elif message.tags == 'warning' %}bg-yellow-600{% endif %}">
+                        {% if message.tags == 'success' %}<i class="fas fa-check-circle"></i>{% elif message.tags == 'error' %}<i class="fas fa-exclamation-circle"></i>{% elif message.tags == 'info' %}<i class="fas fa-info-circle"></i>{% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle"></i>{% endif %}
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
         {% endif %}
 
-        <div class="back-link">
-            <p><a href="{% url 'core:home' %}">Retour à l'accueil</a></p>
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl border-t-4 border-blue-600 mb-8">
+            <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-cogs text-blue-500 mr-3"></i>
+                {% trans "Générer un nouveau rapport" %}
+            </h2>
+            <form action="{% url 'reports:report_list' %}" method="post" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                {% csrf_token %}
+                <div>
+                    <label for="type_rapport" class="block text-gray-700 font-semibold mb-2">{% trans "Type de rapport" %}</label>
+                    <div class="relative">
+                        <select name="type_rapport" id="type_rapport" class="block w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 appearance-none pr-10">
+                            <option value="daily">{% trans "Journalier" %}</option>
+                            <option value="weekly">{% trans "Hebdomadaire" %}</option>
+                            <option value="monthly">{% trans "Mensuel" %}</option>
+                            <option value="annual">{% trans "Annuel" %}</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label for="boutique" class="block text-gray-700 font-semibold mb-2">{% trans "Boutique" %}</label>
+                    <div class="relative">
+                        <select name="boutique" id="boutique" class="block w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 appearance-none pr-10">
+                            {% for boutique in boutiques %}
+                                <option value="{{ boutique.id }}">{{ boutique.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="w-full h-10 mt-4 md:mt-0 bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
+                    <i class="fas fa-plus-circle mr-2"></i>
+                    {% trans "Générer le rapport" %}
+                </button>
+            </form>
+        </div>
+
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl">
+            <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-history text-gray-500 mr-3"></i>
+                {% trans "Rapports existants" %}
+            </h2>
+            {% if rapports %}
+                <div class="flex flex-wrap gap-2 mb-6 justify-center md:justify-start">
+                    <button class="filter-btn text-sm px-4 py-2 rounded-full border border-gray-300 font-medium text-gray-700 bg-white hover:bg-gray-100 transition-colors duration-200 active-filter-btn" data-filter="all">
+                        {% trans "Tout" %}
+                    </button>
+                    <button class="filter-btn text-sm px-4 py-2 rounded-full border border-gray-300 font-medium text-gray-700 bg-white hover:bg-gray-100 transition-colors duration-200" data-filter="daily">
+                        <i class="fas fa-sun text-yellow-500 mr-2"></i>{% trans "Journalier" %}
+                    </button>
+                    <button class="filter-btn text-sm px-4 py-2 rounded-full border border-gray-300 font-medium text-gray-700 bg-white hover:bg-gray-100 transition-colors duration-200" data-filter="weekly">
+                        <i class="fas fa-calendar-week text-green-500 mr-2"></i>{% trans "Hebdomadaire" %}
+                    </button>
+                    <button class="filter-btn text-sm px-4 py-2 rounded-full border border-gray-300 font-medium text-gray-700 bg-white hover:bg-gray-100 transition-colors duration-200" data-filter="monthly">
+                        <i class="fas fa-calendar-alt text-blue-500 mr-2"></i>{% trans "Mensuel" %}
+                    </button>
+                    <button class="filter-btn text-sm px-4 py-2 rounded-full border border-gray-300 font-medium text-gray-700 bg-white hover:bg-gray-100 transition-colors duration-200" data-filter="annual">
+                        <i class="fas fa-calendar-check text-purple-500 mr-2"></i>{% trans "Annuel" %}
+                    </button>
+                </div>
+
+                <div class="hidden md:block overflow-x-auto">
+                    <table class="min-w-full bg-white rounded-lg overflow-hidden border-separate border-spacing-y-2">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="py-4 px-6 text-left text-sm text-gray-600 font-semibold uppercase tracking-wider">{% trans "Type" %}</th>
+                                <th class="py-4 px-6 text-left text-sm text-gray-600 font-semibold uppercase tracking-wider">{% trans "Boutique" %}</th>
+                                <th class="py-4 px-6 text-left text-sm text-gray-600 font-semibold uppercase tracking-wider">{% trans "Période" %}</th>
+                                <th class="py-4 px-6 text-left text-sm text-gray-600 font-semibold uppercase tracking-wider">{% trans "Chiffre d'affaires" %}</th>
+                                <th class="py-4 px-6 text-left text-sm text-gray-600 font-semibold uppercase tracking-wider">{% trans "Ventes" %}</th>
+                                <th class="py-4 px-6 text-left text-sm text-gray-600 font-semibold uppercase tracking-wider">{% trans "Généré le" %}</th>
+                                <th class="py-4 px-6 text-left text-sm text-gray-600 font-semibold uppercase tracking-wider">{% trans "Actions" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            {% for rapport in rapports %}
+                                <tr class="bg-gray-50 hover:bg-gray-100 transition-colors duration-200 report-row" data-type="{{ rapport.type_rapport }}">
+                                    <td class="py-4 px-6 text-sm font-medium text-gray-800 flex items-center gap-2">
+                                        {% if rapport.type_rapport == 'daily' %}<i class="fas fa-sun text-yellow-500"></i>{% elif rapport.type_rapport == 'weekly' %}<i class="fas fa-calendar-week text-green-500"></i>{% elif rapport.type_rapport == 'monthly' %}<i class="fas fa-calendar-alt text-blue-500"></i>{% elif rapport.type_rapport == 'annual' %}<i class="fas fa-calendar-check text-purple-500"></i>{% endif %}
+                                        {{ rapport.get_type_rapport_display }}
+                                    </td>
+                                    <td class="py-4 px-6 text-sm text-gray-700">{{ rapport.boutique.name }}</td>
+                                    <td class="py-4 px-6 text-sm text-gray-700">{{ rapport.date_debut }} - {{ rapport.date_fin }}</td>
+                                    <td class="py-4 px-6 text-sm text-green-600 font-bold">{{ rapport.total_revenue }}</td>
+                                    <td class="py-4 px-6 text-sm text-gray-700">{{ rapport.num_sales }}</td>
+                                    <td class="py-4 px-6 text-sm text-gray-500">{{ rapport.generated_at|date:"d M Y, H:i" }}</td>
+                                    <td class="py-4 px-6 text-sm text-gray-700">
+                                        <a href="{% url 'reports:download_report' rapport.id %}" class="text-blue-600 hover:text-blue-800 transition-colors duration-200" title="{% trans 'Télécharger en Excel' %}">
+                                            <i class="fas fa-file-excel text-lg"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+        
+                <div class="md:hidden space-y-4">
+                    {% for rapport in rapports %}
+                    <div class="bg-gray-50 p-4 rounded-lg shadow-sm border-l-4 border-blue-500 report-card" data-type="{{ rapport.type_rapport }}">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-md font-semibold text-gray-900 flex items-center gap-2">
+                                {% if rapport.type_rapport == 'daily' %}<i class="fas fa-sun text-yellow-500"></i>{% elif rapport.type_rapport == 'weekly' %}<i class="fas fa-calendar-week text-green-500"></i>{% elif rapport.type_rapport == 'monthly' %}<i class="fas fa-calendar-alt text-blue-500"></i>{% elif rapport.type_rapport == 'annual' %}<i class="fas fa-calendar-check text-purple-500"></i>{% endif %}
+                                {{ rapport.get_type_rapport_display }}
+                            </h3>
+                            <span class="text-sm text-gray-500">{{ rapport.generated_at|date:"d M Y" }}</span>
+                        </div>
+                        <p class="text-gray-600 mb-1">
+                            <span class="font-semibold">Boutique :</span> {{ rapport.boutique.name }}
+                        </p>
+                        <p class="text-gray-600 mb-1">
+                            <span class="font-semibold">Période :</span> {{ rapport.date_debut }} - {{ rapport.date_fin }}
+                        </p>
+                        <p class="text-green-600 font-bold text-lg mb-1">
+                            {% trans "Chiffre d'affaires" %} : {{ rapport.total_revenue }}
+                        </p>
+                        <p class="text-gray-600 flex justify-between items-center">
+                            <span class="font-semibold">Ventes :</span> {{ rapport.num_sales }}
+                            <a href="{% url 'reports:download_report' rapport.id %}" class="text-blue-600 hover:text-blue-800 transition-colors duration-200" title="{% trans 'Télécharger en Excel' %}">
+                               <i class="fas fa-download text-lg"></i>
+                            </a>
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+        
+            {% else %}
+                <div class="text-center py-10 bg-gray-50 rounded-lg">
+                    <i class="fas fa-file-alt text-gray-400 text-6xl mb-4"></i>
+                    <p class="text-lg text-gray-500 font-semibold">{% trans "Aucun rapport n'a été généré pour le moment." %}</p>
+                    <p class="text-gray-400 mt-2">{% trans "Utilisez le formulaire ci-dessus pour commencer." %}</p>
+                </div>
+            {% endif %}
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const reportRows = document.querySelectorAll('.report-row');
+            const reportCards = document.querySelectorAll('.report-card');
+        
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Retirer la classe 'active' de tous les boutons
+                    filterButtons.forEach(btn => btn.classList.remove('active-filter-btn', 'bg-gray-200', 'font-bold'));
+                    
+                    // Ajouter la classe 'active' au bouton cliqué
+                    this.classList.add('active-filter-btn', 'bg-gray-200', 'font-bold');
+        
+                    const filter = this.getAttribute('data-filter');
+        
+                    // Filtrer les lignes du tableau
+                    reportRows.forEach(row => {
+                        const dataType = row.getAttribute('data-type');
+                        if (filter === 'all' || dataType === filter) {
+                            row.style.display = ''; // Afficher la ligne
+                        } else {
+                            row.style.display = 'none'; // Cacher la ligne
+                        }
+                    });
+        
+                    // Filtrer les cartes
+                    reportCards.forEach(card => {
+                        const dataType = card.getAttribute('data-type');
+                        if (filter === 'all' || dataType === filter) {
+                            card.style.display = 'block'; // Afficher la carte
+                        } else {
+                            card.style.display = 'none'; // Cacher la carte
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+    
 </body>
 </html>

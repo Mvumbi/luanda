@@ -1,0 +1,7 @@
+ #mobile-menu {
+transition: max-height 0.3s ease-in-out;
+ max-height: 0;
+}
+#mobile-menu.active {
+max-height: 500px; /* Grande valeur pour permettre l'expansion */
+}

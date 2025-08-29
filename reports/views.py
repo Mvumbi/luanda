@@ -1,15 +1,124 @@
-# reports/views.py
-
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import RapportMensuel # Importez le modèle RapportMensuel
+from django.db.models import Sum, F
+from django.http import HttpResponse # Importation de HttpResponse pour les réponses de fichiers
+from django.utils import timezone
+from datetime import date, timedelta
+import pandas as pd # Importation de pandas
+from openpyxl import Workbook # Assurez-vous d'avoir installé openpyxl (pip install openpyxl)
+
+# Import your models
+from reports.models import Rapport
+from core.models import Boutique
+from sales.models import Vente, LigneVente # Import both models
 
 @login_required
-def report_list(request):
-    # Récupère tous les rapports mensuels et les ordonne par année puis mois (du plus récent au plus ancien)
-    reports = RapportMensuel.objects.all().order_by('-year', '-month')
+def generate_report(request):
+    """
+    Handles the generation and display of reports.
+    """
+    if request.method == 'POST':
+        type_rapport = request.POST.get('type_rapport')
+        boutique_id = request.POST.get('boutique')
+
+        try:
+            boutique = Boutique.objects.get(id=boutique_id)
+        except Boutique.DoesNotExist:
+            messages.error(request, "Boutique introuvable.")
+            return redirect('reports:report_view')
+
+        # Define the date range based on the report type
+        today = date.today()
+        if type_rapport == 'daily':
+            start_date = today
+            end_date = today
+        elif type_rapport == 'weekly':
+            # Week starts on Monday (ISO 8601)
+            start_date = today - timedelta(days=today.weekday())
+            end_date = start_date + timedelta(days=6)
+        elif type_rapport == 'monthly':
+            start_date = today.replace(day=1)
+            end_date = today
+        elif type_rapport == 'annual':
+            start_date = today.replace(month=1, day=1)
+            end_date = today
+        else:
+            messages.error(request, "Type de rapport non valide.")
+            return redirect('reports:report_view')
+
+        # Check for existing reports
+        if Rapport.objects.filter(type_rapport=type_rapport, boutique=boutique, date_debut=start_date, date_fin=end_date).exists():
+            messages.warning(request, "Un rapport a déjà été généré pour cette période et cette boutique.")
+            return redirect('reports:report_view')
+
+        # **Corrected data calculation:**
+        # Get the sales for the period from the Vente model
+        ventes_period = Vente.objects.filter(
+            boutique=boutique,
+            sale_date__date__range=[start_date, end_date]
+        )
+        
+        # Calculate the total revenue
+        total_revenue = ventes_period.aggregate(total=Sum('total_amount'))['total'] or 0
+
+        # Calculate the number of distinct sales
+        num_sales = ventes_period.count()
+
+        # Create and save the report
+        report = Rapport.objects.create(
+            type_rapport=type_rapport,
+            boutique=boutique,
+            date_debut=start_date,
+            date_fin=end_date,
+            total_revenue=total_revenue,
+            num_sales=num_sales
+        )
+        
+        messages.success(request, f"Rapport {report.get_type_rapport_display()} généré avec succès pour {boutique.name}.")
+        return redirect('reports:report_list')
+
+    # Display existing reports
+    rapports = Rapport.objects.all()
+    boutiques = Boutique.objects.all()
     context = {
-        'reports': reports,
-        'page_title': "Rapports Mensuels",
+        'rapports': rapports,
+        'boutiques': boutiques,
+        'page_title': 'Rapports',
     }
     return render(request, 'reports/report_list.html', context)
+
+
+@login_required
+def download_report(request, report_id):
+    """
+    Génère et télécharge un rapport au format Excel.
+    """
+    # 1. Récupérer le rapport
+    rapport = get_object_or_404(Rapport, pk=report_id)
+
+    # 2. Créer une réponse HTTP pour un fichier Excel
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    # Définir le nom du fichier de téléchargement
+    file_name = f"rapport_{rapport.get_type_rapport_display()}_{rapport.date_debut}_boutique_{rapport.boutique.name}.xlsx"
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+
+    # 3. Créer un DataFrame pandas avec les données du rapport
+    data = {
+        "Type": [rapport.get_type_rapport_display()],
+        "Boutique": [rapport.boutique.name],
+        "Date de début": [rapport.date_debut],
+        "Date de fin": [rapport.date_fin],
+        "Chiffre d'affaires": [rapport.total_revenue],
+        "Nombre de ventes": [rapport.num_sales],
+        "Généré le": [rapport.generated_at.strftime("%Y-%m-%d %H:%M:%S")],
+    }
+    df = pd.DataFrame(data)
+
+    # 4. Écrire le DataFrame dans la réponse Excel
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Rapport')
+
+    return response
