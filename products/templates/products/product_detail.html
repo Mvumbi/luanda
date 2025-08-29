@@ -1,68 +1,119 @@
-{# products/templates/products/product_detail.html #}
+{% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page_title }} - Luanda Store</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f0f2f5; }
-        .container { max-width: 800px; margin: 20px auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h1 { color: #007bff; text-align: center; margin-bottom: 25px; }
-        .detail-item { margin-bottom: 10px; }
-        .detail-item strong { display: inline-block; width: 150px; color: #555; }
-        .action-links { margin-top: 30px; text-align: center; }
-        .action-links a {
-            background-color: #28a745; /* Vert pour modifier */
-            color: white;
-            padding: 8px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            margin: 0 5px;
-            transition: background-color 0.3s ease;
-        }
-        .action-links a.edit { background-color: #ffc107; } /* Jaune pour modifier */
-        .action-links a.edit:hover { background-color: #e0a800; }
-        .action-links a.delete { background-color: #dc3545; } /* Rouge pour supprimer (à venir) */
-        .action-links a.delete:hover { background-color: #c82333; }
-        .back-link { margin-top: 30px; display: block; text-align: right; }
-        .back-link a { text-decoration: none; color: #007bff; font-weight: bold; }
-        .back-link a:hover { text-decoration: underline; }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
-<body>
-    <div class="container">
-        <h1>Détails du Produit</h1>
+<body class="bg-gray-100 font-sans antialiased text-gray-800">
 
-        <div class="detail-item">
-            <strong>Nom :</strong> {{ product.name }}
+    <nav class="bg-blue-600 shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a class="text-white text-2xl font-bold hover:text-blue-200 transition-colors" href="{% url 'core:home' %}">
+                <i class="fas fa-store mr-2"></i>Luanda Store
+            </a>
+            <button class="text-white lg:hidden focus:outline-none" id="mobile-menu-toggle">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <div id="mobile-menu" class="hidden lg:flex flex-grow justify-end items-center space-x-6">
+                <ul class="flex flex-col lg:flex-row lg:space-x-6 lg:space-y-0 space-y-2 mt-4 lg:mt-0">
+                    <li class="nav-item">
+                        <a class="text-white hover:text-blue-200 transition-colors" href="{% url 'core:home' %}">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="text-white hover:text-blue-200 transition-colors" href="{% url 'products:product_list' %}">Produits</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="text-white hover:text-blue-200 transition-colors" href="{% url 'core:boutique_list' %}">Boutiques</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="text-white font-bold hover:text-blue-200 transition-colors" href="{% url 'products:stock_list' %}">Stocks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="text-white hover:text-blue-200 transition-colors" href="{% url 'products:mouvement_stock_list' %}">Mouvements</a>
+                    </li>
+                </ul>
+                <div class="flex items-center space-x-4 ml-0 lg:ml-6 mt-4 lg:mt-0">
+                    <span class="text-blue-100 hidden md:block">Bonjour, {{ user.username }}!</span>
+                    <form action="{% url 'users:logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                            Déconnexion
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="detail-item">
-            <strong>Code Produit :</strong> {{ product.product_code }}
-        </div>
-        <div class="detail-item">
-            <strong>Description :</strong> {{ product.description|default:"Aucune description." }}
-        </div>
-        <div class="detail-item">
-            <strong>Prix :</strong> {{ product.price }} FDJ
-        </div>
-        <div class="detail-item">
-            <strong>Date de création :</strong> {{ product.created_at|date:"d M Y H:i" }}
-        </div>
-        <div class="detail-item">
-            <strong>Dernière mise à jour :</strong> {{ product.updated_at|date:"d M Y H:i" }}
-        </div>
+    </nav>
 
-        <div class="action-links">
-            <a href="{% url 'products:product_update' product.pk %}" class="edit">Modifier ce produit</a>
-            {# Ajoutez ici un lien pour supprimer le produit plus tard #}
-            <a href="{% url 'products:product_delete' product.pk %}" class="delete">Supprimer ce produit</a>
-        </div>
+    <div class="container mx-auto mt-8 p-4 md:p-6 lg:p-8 flex justify-center">
+        <div class="bg-white rounded-xl shadow-xl p-6 sm:p-8 max-w-2xl w-full">
+            <div class="text-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Détails du Produit</h1>
+                <p class="text-gray-500">Informations complètes sur {{ product.name }}</p>
+            </div>
 
-        <div class="back-link">
-            <p><a href="{% url 'products:product_list' %}">Retour à la liste des produits</a></p>
+            <div class="space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center">
+                    <strong class="flex-shrink-0 w-full md:w-40 text-gray-700 font-semibold mb-1 md:mb-0">Nom :</strong>
+                    <span class="text-gray-900">{{ product.name }}</span>
+                </div>
+                <div class="flex flex-col md:flex-row md:items-center">
+                    <strong class="flex-shrink-0 w-full md:w-40 text-gray-700 font-semibold mb-1 md:mb-0">Code Produit :</strong>
+                    <span class="text-gray-900">{{ product.product_code }}</span>
+                </div>
+                <div class="flex flex-col md:flex-row md:items-start">
+                    <strong class="flex-shrink-0 w-full md:w-40 text-gray-700 font-semibold mb-1 md:mb-0">Description :</strong>
+                    <p class="text-gray-900 leading-relaxed">{{ product.description|default:"Aucune description." }}</p>
+                </div>
+                <div class="flex flex-col md:flex-row md:items-center">
+                    <strong class="flex-shrink-0 w-full md:w-40 text-gray-700 font-semibold mb-1 md:mb-0">Prix :</strong>
+                    <span class="text-gray-900">{{ product.price }} FDJ</span>
+                </div>
+                <div class="flex flex-col md:flex-row md:items-center">
+                    <strong class="flex-shrink-0 w-full md:w-40 text-gray-700 font-semibold mb-1 md:mb-0">Date de création :</strong>
+                    <span class="text-gray-500 text-sm">{{ product.created_at|date:"d M Y H:i" }}</span>
+                </div>
+                <div class="flex flex-col md:flex-row md:items-center">
+                    <strong class="flex-shrink-0 w-full md:w-40 text-gray-700 font-semibold mb-1 md:mb-0">Dernière mise à jour :</strong>
+                    <span class="text-gray-500 text-sm">{{ product.updated_at|date:"d M Y H:i" }}</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-8 justify-center">
+                <a href="{% url 'products:product_update' product.pk %}" class="w-full sm:w-auto px-6 py-3 text-center bg-yellow-500 text-white font-bold rounded-lg hover:bg-yellow-600 transition-colors">
+                    <i class="fas fa-edit mr-2"></i> Modifier ce produit
+                </a>
+                <a href="{% url 'products:product_delete' product.pk %}" class="w-full sm:w-auto px-6 py-3 text-center bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors">
+                    <i class="fas fa-trash-alt mr-2"></i> Supprimer ce produit
+                </a>
+            </div>
+
+            <div class="mt-8 text-center">
+                <a href="{% url 'products:product_list' %}" class="text-blue-600 hover:text-blue-800 font-semibold transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i> Retour à la liste des produits
+                </a>
+            </div>
         </div>
     </div>
+
+    <footer class="bg-gray-800 text-white text-center p-4 mt-8">
+        <div class="container mx-auto">
+            <p>&copy; 2025 Luanda Store. Tous droits réservés.</p>
+        </div>
+    </footer>
+    
+    <script>
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
 </body>
 </html>

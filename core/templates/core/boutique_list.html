@@ -1,244 +1,184 @@
+{% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page_title }} - Luanda Store</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #e9ecef; /* Un gris clair moderne */
-            margin: 0;
-            padding: 0;
-            color: #343a40; /* Texte sombre pour un bon contraste */
-        }
-        .navbar {
-            background-color: #007bff; /* Bleu Bootstrap pour la barre de navigation */
-            padding: 1rem 0;
-        }
-        .navbar-brand {
-            color: #fff !important;
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-        .navbar-nav .nav-link {
-            color: #fff !important;
-            margin-right: 15px;
-        }
-        .navbar-nav .nav-link:hover {
-            color: #cce5ff !important;
-        }
-        .container-main {
-            padding-top: 30px;
-            padding-bottom: 50px;
-        }
-        .table-responsive {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            padding: 20px;
-        }
-        .table thead th {
-            background-color: #007bff;
-            color: white;
-            border-bottom: 2px solid #0056b3;
-            font-weight: 600;
-        }
-        .table tbody tr:hover {
-            background-color: #f1f1f1;
-        }
-        .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-        .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
-        }
-        .btn-info {
-            background-color: #17a2b8;
-            border-color: #17a2b8;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-        .btn-info:hover {
-            background-color: #138496;
-            border-color: #138496;
-        }
-        .btn-warning {
-            background-color: #ffc107;
-            border-color: #ffc107;
-            color: #212529; /* Texte sombre pour un bon contraste */
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-        .btn-warning:hover {
-            background-color: #e0a800;
-            border-color: #d39e00;
-        }
-        .btn-danger {
-            background-color: #dc3545;
-            border-color: #dc3545;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-        .btn-danger:hover {
-            background-color: #c82333;
-            border-color: #bd2130;
-        }
-        .alert {
-            border-radius: 8px;
-        }
-        .footer {
-            text-align: center;
-            padding: 30px;
-            margin-top: 50px;
-            color: #6c757d;
-            font-size: 0.9em;
-            border-top: 1px solid #dee2e6;
-        }
-        /* Styles pour les messages */
-        .messages {
-            list-style: none;
-            padding: 0;
-            margin: 20px 0;
-        }
-        .messages li {
-            padding: 10px 15px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-        .messages .success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .messages .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .messages .info {
-            background-color: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-        .messages .warning {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
+        /* Styles personnalisés pour la responsivité du tableau */
+        @media (max-width: 768px) {
+            .table-responsive {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .table-responsive > table {
+                width: 100%;
+            }
+            .table-responsive thead {
+                display: none;
+            }
+            .table-responsive tr {
+                display: block;
+                margin-bottom: 0.75rem;
+                border-bottom: 2px solid #e5e7eb;
+                padding-bottom: 0.75rem;
+            }
+            .table-responsive td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.5rem;
+            }
+            .table-responsive td:before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #4b5563;
+                text-transform: uppercase;
+                margin-right: 1rem;
+            }
         }
     </style>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'core:home' %}">Luanda Store</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+<body class="bg-gray-100 font-sans antialiased text-gray-800">
+
+    <nav class="bg-blue-600 shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a class="text-white text-2xl font-bold hover:text-blue-200 transition-colors" href="{% url 'core:home' %}">
+                <i class="fas fa-store mr-2"></i>Luanda Store
+            </a>
+            <button class="text-white lg:hidden focus:outline-none" id="mobile-menu-toggle">
+                <i class="fas fa-bars text-xl"></i>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mr-auto">
+            <div id="mobile-menu" class="hidden lg:flex flex-grow justify-end items-center space-x-6">
+                <ul class="flex flex-col lg:flex-row lg:space-x-6 lg:space-y-0 space-y-2 mt-4 lg:mt-0">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'core:home' %}">Accueil</a>
+                        <a class="text-white hover:text-blue-200 transition-colors" href="{% url 'core:home' %}">Accueil</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'products:product_list' %}">Produits</a>
-                    </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="{% url 'core:boutique_list' %}">Boutiques <span class="sr-only">(current)</span></a>
+                        <a class="text-white hover:text-blue-200 transition-colors" href="{% url 'products:product_list' %}">Produits</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'products:stock_list' %}">Stocks</a>
-                    </li>
-                    {# Ajoutez d'autres liens de navigation ici, comme Ventes, Rapports, etc. #}
-                </ul>
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <span class="nav-link">Bonjour, {{ user.username }}!</span>
+                        <a class="text-white font-bold hover:text-blue-200 transition-colors" href="{% url 'core:boutique_list' %}">Boutiques</a>
                     </li>
                     <li class="nav-item">
-                        <form action="{% url 'users:logout' %}" method="post" class="form-inline my-2 my-lg-0">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-light my-2 my-sm-0">Déconnexion</button>
-                        </form>
+                        <a class="text-white hover:text-blue-200 transition-colors" href="{% url 'products:stock_list' %}">Stocks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="text-white hover:text-blue-200 transition-colors" href="{% url 'products:mouvement_stock_list' %}">Mouvements</a>
                     </li>
                 </ul>
+                <div class="flex items-center space-x-4 ml-0 lg:ml-6 mt-4 lg:mt-0">
+                    <span class="text-blue-100 hidden md:block">Bonjour, {{ user.username }}!</span>
+                    <form action="{% url 'users:logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                            Déconnexion
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container container-main">
-        <h2 class="mb-4 text-center">{{ page_title }}</h2>
-
-        {% if messages %}
-            <ul class="messages">
-                {% for message in messages %}
-                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-
-        <div class="d-flex justify-content-end mb-4">
-            <a href="{% url 'core:boutique_create' %}" class="btn btn-primary btn-lg">
+    <div class="container mx-auto mt-8 p-4 md:p-6 lg:p-8">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4 md:mb-0">{{ page_title }}</h2>
+            <a href="{% url 'core:boutique_create' %}" class="bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors">
                 <i class="fas fa-plus-circle mr-2"></i> Ajouter une nouvelle boutique
             </a>
         </div>
 
+        {% if messages %}
+            <div class="space-y-4 mb-6">
+                {% for message in messages %}
+                    <div class="px-4 py-3 rounded-md font-medium text-white {% if message.tags == 'success' %}bg-green-500{% elif message.tags == 'error' %}bg-red-500{% elif message.tags == 'info' %}bg-blue-500{% elif message.tags == 'warning' %}bg-yellow-500{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
         {% if boutiques %}
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Nom</th>
-                        <th>Adresse</th> {# Supposons que tu utilises 'address' #}
-                        <th>Ville</th> {# Nouveau champ 'city' #}
-                        <th>Principale</th> {# Nouveau champ 'is_main' #}
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for boutique in boutiques %}
-                    <tr>
-                        <td>{{ boutique.name }}</td>
-                        <td>{{ boutique.address|default:"Non spécifiée" }}</td>
-                        <td>{{ boutique.city|default:"Non spécifiée" }}</td>
-                        <td>
-                            {% if boutique.is_main %}
-                                <span class="badge badge-success">Oui</span>
-                            {% else %}
-                                <span class="badge badge-secondary">Non</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <a href="{% url 'core:boutique_detail' boutique.pk %}" class="btn btn-sm btn-info">Voir</a>
-                            <a href="{% url 'core:boutique_update' boutique.pk %}" class="btn btn-sm btn-warning">Modifier</a>
-                            <a href="{% url 'core:boutique_delete' boutique.pk %}" class="btn btn-sm btn-danger">Supprimer</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="bg-white rounded-xl shadow-xl p-6 sm:p-8">
+            <div class="table-responsive">
+                <table class="min-w-full bg-white rounded-lg overflow-hidden md:table">
+                    <thead class="bg-gray-200 hidden md:table-header-group">
+                        <tr class="text-left text-gray-600 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6">Nom</th>
+                            <th class="py-3 px-6">Adresse</th>
+                            <th class="py-3 px-6">Ville</th>
+                            <th class="py-3 px-6">Principale</th>
+                            <th class="py-3 px-6 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-600 text-sm font-light">
+                        {% for boutique in boutiques %}
+                        <tr class="border-b border-gray-200 hover:bg-gray-50 flex flex-col md:table-row md:border-b">
+                            <td class="py-3 px-6 md:table-cell font-semibold" data-label="Nom">{{ boutique.name }}</td>
+                            <td class="py-3 px-6 md:table-cell" data-label="Adresse">{{ boutique.address|default:"Non spécifiée" }}</td>
+                            <td class="py-3 px-6 md:table-cell" data-label="Ville">{{ boutique.city|default:"Non spécifiée" }}</td>
+                            <td class="py-3 px-6 md:table-cell" data-label="Principale">
+                                {% if boutique.is_main %}
+                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                                        Oui
+                                    </span>
+                                {% else %}
+                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+                                        Non
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3 px-6 md:table-cell" data-label="Actions">
+                                <div class="flex justify-start md:justify-center space-x-2">
+                                    <a href="{% url 'core:boutique_detail' boutique.pk %}" class="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition-colors" title="Voir">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'core:boutique_update' boutique.pk %}" class="bg-yellow-500 text-white p-2 rounded-md hover:bg-yellow-600 transition-colors" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'core:boutique_delete' boutique.pk %}" class="bg-red-600 text-white p-2 rounded-md hover:bg-red-700 transition-colors" title="Supprimer">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
         {% else %}
-        <div class="alert alert-info text-center" role="alert">
-            <h4 class="alert-heading">Aucune boutique n'a été trouvée.</h4>
-            <p>Cliquez sur "Ajouter une nouvelle boutique" pour commencer.</p>
-            <hr>
-            <a href="{% url 'core:boutique_create' %}" class="btn btn-outline-info">Créer une boutique maintenant</a>
+        <div class="text-center p-8 border-2 border-dashed border-gray-300 rounded-lg">
+            <i class="fas fa-store-alt text-gray-400 text-5xl mb-4"></i>
+            <h4 class="text-xl font-semibold mb-2">Aucune boutique n'a été trouvée.</h4>
+            <p class="text-gray-600 mb-4">Cliquez sur "Ajouter une nouvelle boutique" pour commencer.</p>
+            <a href="{% url 'core:boutique_create' %}" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-plus-circle mr-2"></i> Créer une boutique maintenant
+            </a>
         </div>
         {% endif %}
     </div>
 
-    <footer class="footer">
-        <div class="container">
+    <footer class="bg-gray-800 text-white text-center p-4 mt-8">
+        <div class="container mx-auto">
             <p>&copy; 2025 Luanda Store. Tous droits réservés.</p>
         </div>
     </footer>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script>
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+
 </body>
 </html>
