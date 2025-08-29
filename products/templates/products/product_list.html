@@ -1,0 +1,92 @@
+{# products/templates/products/product_list.html #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} - Luanda Store</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f0f2f5; }
+        .container { max-width: 960px; margin: 20px auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { color: #007bff; text-align: center; margin-bottom: 25px; } /* Centré et plus d'espace */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .no-products { text-align: center; color: #555; margin-top: 20px; }
+        .back-link { margin-top: 30px; display: block; text-align: right; }
+        .back-link a { text-decoration: none; color: #007bff; font-weight: bold; }
+        .back-link a:hover { text-decoration: underline; }
+
+        /* Styles pour le bouton "Ajouter un produit" */
+        .action-buttons {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        .action-buttons a {
+            background-color: #007bff; /* Bleu */
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block; /* Pour que padding et margin fonctionnent bien */
+            transition: background-color 0.3s ease;
+        }
+        .action-buttons a:hover {
+            background-color: #0056b3; /* Bleu plus foncé au survol */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ page_title }}</h1>
+
+        <div class="action-buttons">
+            <a href="{% url 'products:product_create' %}">
+                + Ajouter un nouveau produit
+            </a>
+        </div>
+
+        {% if products %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Code Produit</th>
+                        <th>Prix</th>
+                        <th>Description</th>
+                        <th>Date de création</th>
+                        <th>Actions</th> {# Nouvelle colonne pour les actions (détail, modifier) #}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.product_code }}</td>
+                        <td>{{ product.price }} FDJ</td> {# Ajoutez votre devise locale #}
+                        <td>{{ product.description|default:"Pas de description" }}</td>
+                        <td>{{ product.created_at|date:"d M Y H:i" }}</td>
+                        <td>
+                            {# Ces liens seront fonctionnels une fois les vues et URLs créées #}
+                            <a href="{% url 'products:product_detail' product.pk %}">Voir</a> |
+                            <a href="{% url 'products:product_update' product.pk %}">Modifier</a>
+                            <a href="{% url 'products:product_delete' product.pk %}" style="color: red; text-decoration: none;">Supprimer</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-products">
+                Aucun produit n'est enregistré pour le moment.
+                <a href="{% url 'products:product_create' %}">Cliquez ici pour en ajouter un !</a>
+            </p>
+        {% endif %}
+
+        <div class="back-link">
+            <p><a href="{% url 'core:home' %}">Retour à l'accueil</a></p>
+        </div>
+    </div>
+</body>
+</html>

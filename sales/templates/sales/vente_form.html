@@ -1,0 +1,312 @@
+{% load i18n %} {# Pour la traduction #}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} - Luanda Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+B5zPgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Styles personnalisés pour un look propre */
+        body {
+            background-color: #f8f9fa; /* Couleur de fond légère */
+        }
+        .navbar {
+            background-color: #007bff; /* Bleu primaire */
+        }
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+        .card-header {
+            background-color: #e9ecef; /* Gris clair pour les en-têtes de carte */
+            font-weight: bold;
+        }
+        .form-label {
+            font-weight: 500;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+        .alert {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Luanda Store</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'products:product_list' %}">{% trans "Produits" %}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'sales:vente_list' %}">{% trans "Ventes" %}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin:index' %}">{% trans "Admin" %}</a>
+                    </li>
+                    {# Exemple de lien de déconnexion #}
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'users:logout' %}">{% trans "Déconnexion" %} ({{ user.username }})</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'users:login' %}">{% trans "Connexion" %}</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2 class="mb-4">{{ page_title }}</h2>
+
+        {% if messages %}
+            <ul class="messages list-unstyled">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <form method="post" novalidate action="{% url 'sales:vente_create' %}">
+            {% csrf_token %}
+            
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Informations Générales de la Vente" %}</h5>
+                </div>
+                <div class="card-body">
+                    {# Afficher les erreurs non-champ du formulaire principal #}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{% trans "Articles de la Vente" %}</h5>
+                    <button type="button" class="btn btn-success btn-sm" id="add-item-form">
+                        <i class="fas fa-plus"></i> {% trans "Ajouter un article" %}
+                    </button>
+                </div>
+                <div class="card-body">
+                    {# Gestion des erreurs globales du formset #}
+                    {% if formset.non_form_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in formset.non_form_errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div id="formset-container">
+                        {{ formset.management_form }} {# NE PAS OUBLIER CELA POUR LES FORMSETS #}
+                        {% for form_item in formset %}
+                            <div class="row mb-3 border p-3 rounded formset-row" id="form-{{ forloop.counter0 }}">
+                                {% if form_item.non_field_errors %}
+                                    <div class="alert alert-danger">
+                                        {% for error in form_item.non_field_errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="col-md-5">
+                                    <label for="{{ form_item.product.id_for_label }}" class="form-label">{{ form_item.product.label }}</label>
+                                    {{ form_item.product }}
+                                    {% for error in form_item.product.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="{{ form_item.quantity.id_for_label }}" class="form-label">{{ form_item.quantity.label }}</label>
+                                    {{ form_item.quantity }}
+                                    {% for error in form_item.quantity.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="{{ form_item.price_at_sale.id_for_label }}" class="form-label">{{ form_item.price_at_sale.label }}</label>
+                                    {{ form_item.price_at_sale }}
+                                    {% for error in form_item.price_at_sale.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-1 d-flex align-items-end justify-content-center">
+                                    {% if formset.can_delete %}
+                                        <div class="form-check">
+                                            {{ form_item.DELETE }}
+                                            <label class="form-check-label" for="{{ form_item.DELETE.id_for_label }}">{% trans "Suppr." %}</label>
+                                        </div>
+                                    {% endif %}
+                                    {# Champ ID caché pour les formulaires existants #}
+                                    {% if form_item.instance.pk %}{{ form_item.id }}{% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg">{% trans "Enregistrer la Vente" %}</button>
+            <a href="{% url 'sales:vente_list' %}" class="btn btn-secondary btn-lg">{% trans "Annuler" %}</a>
+        </form>
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">© {% now "Y" %} Luanda Store. Tous droits réservés.</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdjK1qG0c/pXxjYnF4kC" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+    {# JavaScript pour la gestion dynamique des formulaires du formset et l'application des classes Bootstrap #}
+    <script type="text/javascript">
+        $(function() {
+            var formsetContainer = $('#formset-container');
+            var addButton = $('#add-item-form');
+            var totalForms = $('#id_form-TOTAL_FORMS'); // Récupère le champ hidden TOTAL_FORMS du management_form
+            var formCount = parseInt(totalForms.val()); // Compte actuel de formulaires
+
+            // Parse la chaîne JSON en objet JavaScript.
+            // `escapejs` échappe la chaîne JSON pour qu'elle soit valide dans un contexte JS.
+            var productsPrices = JSON.parse('{{ products_json|escapejs }}'); 
+
+            // Fonction pour appliquer les classes Bootstrap aux éléments de formulaire
+            function applyBootstrapClasses() {
+                $('input[type="text"], input[type="number"], input[type="email"], input[type="password"], textarea').not('[type="hidden"]').addClass('form-control');
+                $('select').addClass('form-select');
+                $('input[type="checkbox"]').addClass('form-check-input');
+            }
+
+            // Applique les classes au chargement initial de la page
+            applyBootstrapClasses();
+
+            // Cache la checkbox "Supprimer" pour le formulaire vide initial (s'il n'a pas d'ID d'instance)
+            $('.formset-row').each(function() {
+                // On cache la case à cocher 'DELETE' seulement si c'est un nouveau formulaire (pas encore enregistré)
+                if (!$(this).find('input[name$="-id"]').val()) {
+                     $(this).find('.col-md-1').hide();
+                }
+            });
+
+            // Gère la mise à jour automatique du prix unitaire
+            function updateUnitPrice(formRow) {
+                var productId = formRow.find('select[name$="-product"]').val(); // Récupère l'ID du produit sélectionné
+                var priceField = formRow.find('input[name$="-price_at_sale"]'); // Récupère le champ de prix
+
+                if (productId && productsPrices[productId]) {
+                    priceField.val(productsPrices[productId]); // Définit le prix trouvé
+                } else {
+                    priceField.val(''); // Vide le champ si aucun produit n'est sélectionné ou si le prix n'est pas trouvé
+                }
+            }
+
+            // Gère l'ajout de nouveaux formulaires d'article
+            addButton.click(function() {
+                // Clone le premier formulaire existant pour créer un nouveau formulaire
+                var newForm = $(formsetContainer.children('.formset-row').first()).clone(true); 
+                
+                // Met à jour les attributs 'name' et 'id' pour le nouveau formulaire
+                newForm.find('input, select, textarea').each(function() {
+                    var name = $(this).attr('name').replace(/-\d+-/, '-' + formCount + '-'); 
+                    var id = 'id_' + name;
+                    $(this).attr({'name': name, 'id': id}); 
+
+                    // Réinitialise les valeurs des champs
+                    if ($(this).is('select')) {
+                        $(this).val($(this).find('option:first').val()); // Sélectionne la première option (vide/par défaut)
+                    } else if ($(this).is(':checkbox') || $(this).is(':radio')) {
+                        $(this).prop('checked', false); // Décoche les cases à cocher
+                    } else {
+                        $(this).val(''); // Vide les autres champs texte/numériques
+                    }
+
+                    // Met à jour l'attribut 'for' des labels
+                    $(this).closest('.mb-3, .form-check').find('label').attr('for', id); 
+                });
+
+                newForm.find('input[name$="-id"]').remove(); // Supprime l'ID d'instance pour le nouveau formulaire (c'est une nouvelle ligne)
+                newForm.find('input[type="checkbox"][name$="-DELETE"]').prop('checked', false); // Décoche 'DELETE'
+                newForm.find('.col-md-1').show(); // Affiche la case à cocher de suppression pour les nouveaux formulaires
+
+                formsetContainer.append(newForm); // Ajoute le nouveau formulaire au conteneur
+                totalForms.val(formCount + 1); // Incrémente le nombre total de formulaires
+                formCount++; // Met à jour le compteur JS
+                applyBootstrapClasses(); // Applique les classes Bootstrap aux nouveaux champs
+
+                // Attache l'écouteur d'événement pour le changement de produit sur le NOUVEAU formulaire
+                newForm.find('select[name$="-product"]').on('change', function() {
+                    updateUnitPrice($(this).closest('.formset-row'));
+                });
+
+                // Appelle updateUnitPrice pour le formulaire nouvellement ajouté si un produit est présélectionné (bien que nous le vidions ici)
+                updateUnitPrice(newForm); 
+            });
+
+            // Gère la suppression visuelle des formulaires (cocher/décocher la checkbox DELETE)
+            formsetContainer.on('change', 'input[type="checkbox"][name$="-DELETE"]', function() {
+                if ($(this).is(':checked')) {
+                    $(this).closest('.formset-row').hide(); // Cache la ligne si 'DELETE' est cochée
+                } else {
+                    $(this).closest('.formset-row').show(); // Affiche la ligne si 'DELETE' est décochée
+                }
+            });
+
+            // Attache l'écouteur d'événements "change" pour les champs produit (pour les formulaires existants et nouvellement ajoutés)
+            // L'utilisation de `formsetContainer.on(...)` permet la délégation d'événements.
+            formsetContainer.on('change', 'select[name$="-product"]', function() {
+                updateUnitPrice($(this).closest('.formset-row'));
+            });
+
+            // Appelle la fonction de mise à jour au chargement initial de la page pour tous les formulaires existants
+            $('.formset-row').each(function() {
+                updateUnitPrice($(this));
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+{# reports/templates/reports/report_list.html #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} - Luanda Store</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f0f2f5; }
+        .container { max-width: 960px; margin: 20px auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { color: #17a2b8; } /* Couleur bleue/cyan pour les rapports */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #e2f0f4; }
+        .no-reports { text-align: center; color: #555; margin-top: 20px; }
+        .back-link { margin-top: 30px; display: block; text-align: right; }
+        .back-link a { text-decoration: none; color: #007bff; font-weight: bold; }
+        .back-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ page_title }}</h1>
+
+        {% if reports %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Boutique</th>
+                        <th>Mois/Année</th>
+                        <th>Chiffre d'affaires</th>
+                        <th>Nombre de ventes</th>
+                        <th>Généré le</th>
+                        <th>Fichier</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                    <tr>
+                        <td>{{ report.boutique.name }}</td>
+                        <td>{{ report.month }}/{{ report.year }}</td>
+                        <td>{{ report.total_revenue }} FDJ</td> {# Ajoutez votre devise locale #}
+                        <td>{{ report.num_sales }}</td>
+                        <td>{{ report.generated_at|date:"d M Y H:i" }}</td>
+                        <td>
+                            {% if report.report_file %}
+                                <a href="{{ report.report_file.url }}" target="_blank">Voir</a>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-reports">Aucun rapport n'a été généré pour le moment.</p>
+        {% endif %}
+
+        <div class="back-link">
+            <p><a href="{% url 'core:home' %}">Retour à l'accueil</a></p>
+        </div>
+    </div>
+</body>
+</html>

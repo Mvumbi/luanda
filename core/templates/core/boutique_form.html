@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} - Luanda Store</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ecef; /* Un gris clair moderne */
+            margin: 0;
+            padding: 20px;
+            color: #343a40; /* Texte sombre pour un bon contraste */
+        }
+        .container {
+            max-width: 600px; /* Taille réduite pour les formulaires */
+            margin-top: 50px; /* Marge supérieure plus grande */
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #007bff; /* Bleu primaire */
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        .card-header h2 {
+            margin-bottom: 0;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        .card-body {
+            padding: 30px;
+        }
+        .form-group label {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        .form-control {
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+            padding: 10px 15px;
+            box-shadow: none;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        .form-control:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        .form-check-input {
+            margin-top: 0.3rem; /* Aligne mieux la checkbox */
+        }
+        .invalid-feedback {
+            display: block; /* S'assure que les messages d'erreur sont toujours visibles */
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 5px;
+        }
+        .form-text {
+            font-size: 0.875em;
+            color: #6c757d;
+        }
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+        .d-flex button, .d-flex a {
+            flex: 1; /* Permet aux boutons de prendre la même largeur */
+        }
+        .d-flex button + a, .d-flex a + button {
+            margin-left: 15px; /* Espacement entre les boutons */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card shadow-lg"> {# Utilisation de shadow-lg pour une ombre plus prononcée #}
+            <div class="card-header">
+                <h2>{{ page_title }}</h2>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {# Affichage des erreurs globales du formulaire #}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {# Parcours et affiche chaque champ du formulaire #}
+                    {% for field in form %}
+                        <div class="form-group mb-3">
+                            {{ field.label_tag }}
+                            {% if field.field.widget.input_type == 'checkbox' %}
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="{{ field.id_for_label }}" name="{{ field.html_name }}" {% if field.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="{{ field.id_for_label }}">
+                                        {{ field.label }} {# Répète le label ici pour les checkboxes #}
+                                        {% if field.help_text %}
+                                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                                        {% endif %}
+                                    </label>
+                                </div>
+                            {% elif field.field.widget.attrs.rows %} {# Check if it's a textarea #}
+                                <textarea class="form-control {% if field.errors %}is-invalid{% endif %}" 
+                                          id="{{ field.id_for_label }}" 
+                                          name="{{ field.html_name }}" 
+                                          rows="{{ field.field.widget.attrs.rows }}"
+                                          {% if field.field.required %}required{% endif %}
+                                          >{{ field.value|default_if_none:'' }}</textarea>
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                            {% else %}
+                                <input type="{{ field.field.widget.input_type }}" 
+                                    class="form-control {% if field.errors %}is-invalid{% endif %}" 
+                                    id="{{ field.id_for_label }}" 
+                                    name="{{ field.html_name }}" 
+                                    value="{{ field.value|default_if_none:'' }}"
+                                    {% if field.field.required %}required{% endif %} 
+                                    {% if field.field.max_length %}maxlength="{{ field.field.max_length }}"{% endif %}
+                                >
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                            {% endif %}
+
+                            {# Affichage des erreurs spécifiques à chaque champ #}
+                            {% for error in field.errors %}
+                                <div class="invalid-feedback"> {# Pas de d-block car Bootstrap gère son affichage si is-invalid est présent #}
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">Enregistrer</button>
+                        <a href="{% url 'core:boutique_list' %}" class="btn btn-secondary btn-lg">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

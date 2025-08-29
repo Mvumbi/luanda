@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">{{ page_title }}</h2>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">{% trans "Informations de la Vente" %}</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>{% trans "ID Vente" %}:</strong> {{ vente.id }}</p>
+            <p><strong>{% trans "Date de Vente" %}:</strong> {{ vente.sale_date|date:"d M Y H:i" }}</p>
+            <p><strong>{% trans "Vendeur" %}:</strong> {{ vente.seller.username|default:"N/A" }}</p>
+            <p><strong>{% trans "Boutique" %}:</strong> {{ vente.boutique.name|default:"N/A" }}</p>
+            <p><strong>{% trans "Montant Total" %}:</strong> {{ vente.total_amount|floatformat:2 }} $</p>
+            {% if vente.notes %}
+                <p><strong>{% trans "Notes" %}:</strong> {{ vente.notes }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">{% trans "Articles Vendus" %}</h5>
+        </div>
+        <div class="card-body">
+            {% if items %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">{% trans "Produit" %}</th>
+                            <th scope="col">{% trans "Quantité" %}</th>
+                            <th scope="col">{% trans "Prix Unitaire" %}</th>
+                            <th scope="col">{% trans "Sous-total" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>{{ item.product.name }} ({{ item.product.product_code }})</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.price_at_sale|floatformat:2 }} $</td>
+                            <td>{{ item.subtotal|floatformat:2 }} $</td> {# Utilise la propriété @property subtotal dans LigneVente #}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-warning" role="alert">
+                {% trans "Aucun article enregistré pour cette vente." %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <a href="{% url 'sales:vente_list' %}" class="btn btn-secondary btn-lg">{% trans "Retour à la Liste des Ventes" %}</a>
+</div>
+{% endblock %}

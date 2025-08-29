@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} - Luanda Store</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ecef; /* Un gris clair moderne */
+            margin: 0;
+            padding: 0;
+            color: #343a40; /* Texte sombre pour un bon contraste */
+        }
+        .navbar {
+            background-color: #007bff; /* Bleu Bootstrap pour la barre de navigation */
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            color: #fff !important;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .navbar-nav .nav-link {
+            color: #fff !important;
+            margin-right: 15px;
+        }
+        .navbar-nav .nav-link:hover {
+            color: #cce5ff !important;
+        }
+        .container-main {
+            padding-top: 30px;
+            padding-bottom: 50px;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        .card-header {
+            background-color: #007bff; /* Bleu primaire */
+            color: white;
+            padding: 20px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        .card-header h2 {
+            margin-bottom: 0;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        .card-body {
+            padding: 30px;
+        }
+        .card-title {
+            color: #007bff;
+            font-size: 2.25rem; /* Plus grand pour le nom de la boutique */
+            margin-bottom: 1.5rem;
+        }
+        .card-text strong {
+            color: #495057; /* Couleur légèrement plus foncée pour les labels */
+        }
+        .card-footer {
+            background-color: #f8f9fa; /* Fond clair pour le pied de carte */
+            border-top: 1px solid #e9ecef;
+            padding: 20px 30px;
+            display: flex; /* Utilisation de flexbox pour aligner les boutons */
+            gap: 10px; /* Espace entre les boutons */
+            flex-wrap: wrap; /* Permet aux boutons de passer à la ligne si l'écran est petit */
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            border-color: #ffc107;
+            color: #212529; /* Texte sombre pour un bon contraste */
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .btn-warning:hover {
+            background-color: #e0a800;
+            border-color: #d39e00;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+        .footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+            color: #6c757d;
+            font-size: 0.9em;
+            border-top: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'core:home' %}">Luanda Store</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:home' %}">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'products:product_list' %}">Produits</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="{% url 'core:boutique_list' %}">Boutiques <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'products:stock_list' %}">Stocks</a>
+                    </li>
+                    {# Ajoutez d'autres liens de navigation ici, comme Ventes, Rapports, etc. #}
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <span class="nav-link">Bonjour, {{ user.username }}!</span>
+                    </li>
+                    <li class="nav-item">
+                        <form action="{% url 'users:logout' %}" method="post" class="form-inline my-2 my-lg-0">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-light my-2 my-sm-0">Déconnexion</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container container-main">
+        <h2 class="mb-4 text-center">{{ page_title }}</h2>
+
+        <div class="card shadow-lg">
+            <div class="card-header">
+                <h2 class="text-white">{{ boutique.name }}</h2>
+            </div>
+            <div class="card-body">
+                <p class="card-text"><strong>Adresse :</strong> {{ boutique.address|default:"Non spécifiée" }}</p>
+                <p class="card-text"><strong>Ville :</strong> {{ boutique.city|default:"Non spécifiée" }}</p>
+                <p class="card-text">
+                    <strong>Boutique principale :</strong> 
+                    {% if boutique.is_main %}
+                        <span class="badge badge-success badge-lg">Oui</span>
+                    {% else %}
+                        <span class="badge badge-secondary badge-lg">Non</span>
+                    {% endif %}
+                </p>
+                <p class="card-text"><strong>Créée le :</strong> {{ boutique.created_at|date:"d F Y à H:i" }}</p>
+                <p class="card-text"><strong>Dernière mise à jour :</strong> {{ boutique.updated_at|date:"d F Y à H:i" }}</p>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'core:boutique_update' boutique.pk %}" class="btn btn-warning">Modifier cette boutique</a>
+                <a href="{% url 'core:boutique_delete' boutique.pk %}" class="btn btn-danger">Supprimer cette boutique</a>
+                <a href="{% url 'core:boutique_list' %}" class="btn btn-secondary">Retour à la liste</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Luanda Store. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

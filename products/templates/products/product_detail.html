@@ -1,0 +1,68 @@
+{# products/templates/products/product_detail.html #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} - Luanda Store</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f0f2f5; }
+        .container { max-width: 800px; margin: 20px auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { color: #007bff; text-align: center; margin-bottom: 25px; }
+        .detail-item { margin-bottom: 10px; }
+        .detail-item strong { display: inline-block; width: 150px; color: #555; }
+        .action-links { margin-top: 30px; text-align: center; }
+        .action-links a {
+            background-color: #28a745; /* Vert pour modifier */
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 5px;
+            transition: background-color 0.3s ease;
+        }
+        .action-links a.edit { background-color: #ffc107; } /* Jaune pour modifier */
+        .action-links a.edit:hover { background-color: #e0a800; }
+        .action-links a.delete { background-color: #dc3545; } /* Rouge pour supprimer (à venir) */
+        .action-links a.delete:hover { background-color: #c82333; }
+        .back-link { margin-top: 30px; display: block; text-align: right; }
+        .back-link a { text-decoration: none; color: #007bff; font-weight: bold; }
+        .back-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Détails du Produit</h1>
+
+        <div class="detail-item">
+            <strong>Nom :</strong> {{ product.name }}
+        </div>
+        <div class="detail-item">
+            <strong>Code Produit :</strong> {{ product.product_code }}
+        </div>
+        <div class="detail-item">
+            <strong>Description :</strong> {{ product.description|default:"Aucune description." }}
+        </div>
+        <div class="detail-item">
+            <strong>Prix :</strong> {{ product.price }} FDJ
+        </div>
+        <div class="detail-item">
+            <strong>Date de création :</strong> {{ product.created_at|date:"d M Y H:i" }}
+        </div>
+        <div class="detail-item">
+            <strong>Dernière mise à jour :</strong> {{ product.updated_at|date:"d M Y H:i" }}
+        </div>
+
+        <div class="action-links">
+            <a href="{% url 'products:product_update' product.pk %}" class="edit">Modifier ce produit</a>
+            {# Ajoutez ici un lien pour supprimer le produit plus tard #}
+            <a href="{% url 'products:product_delete' product.pk %}" class="delete">Supprimer ce produit</a>
+        </div>
+
+        <div class="back-link">
+            <p><a href="{% url 'products:product_list' %}">Retour à la liste des produits</a></p>
+        </div>
+    </div>
+</body>
+</html>
