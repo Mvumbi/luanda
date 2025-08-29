@@ -1,91 +1,129 @@
-{# products/templates/products/product_list.html #}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page_title }} - Luanda Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f0f2f5; }
-        .container { max-width: 960px; margin: 20px auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h1 { color: #007bff; text-align: center; margin-bottom: 25px; } /* Centré et plus d'espace */
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .no-products { text-align: center; color: #555; margin-top: 20px; }
-        .back-link { margin-top: 30px; display: block; text-align: right; }
-        .back-link a { text-decoration: none; color: #007bff; font-weight: bold; }
-        .back-link a:hover { text-decoration: underline; }
-
-        /* Styles pour le bouton "Ajouter un produit" */
-        .action-buttons {
-            margin-bottom: 20px;
-            text-align: right;
-        }
-        .action-buttons a {
-            background-color: #007bff; /* Bleu */
-            color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            display: inline-block; /* Pour que padding et margin fonctionnent bien */
-            transition: background-color 0.3s ease;
-        }
-        .action-buttons a:hover {
-            background-color: #0056b3; /* Bleu plus foncé au survol */
+        /* Styles personnalisés pour la responsivité */
+        @media (max-width: 768px) {
+            .table-responsive {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .table-responsive > table {
+                width: 100%;
+            }
+            .table-responsive thead {
+                display: none;
+            }
+            .table-responsive tr {
+                display: block;
+                margin-bottom: 0.75rem;
+                border-bottom: 2px solid #e5e7eb;
+            }
+            .table-responsive td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+            .table-responsive td:before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #4b5563;
+                text-transform: uppercase;
+                margin-right: 1rem;
+            }
+            /* Pour les boutons d'action sur mobile */
+            .action-buttons-mobile {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>{{ page_title }}</h1>
+<body class="bg-gray-100 font-sans antialiased text-gray-800">
 
-        <div class="action-buttons">
-            <a href="{% url 'products:product_create' %}">
-                + Ajouter un nouveau produit
-            </a>
-        </div>
+    <div class="min-h-screen p-4 sm:p-6 lg:p-8">
+        <div class="bg-white rounded-xl shadow-xl p-6 sm:p-8">
+            <div class="text-center mb-6">
+                <h1 class="text-3xl font-bold text-blue-600 mb-2">{{ page_title }}</h1>
+                <p class="text-gray-500">Gérez l'ensemble des produits de votre boutique.</p>
+            </div>
 
-        {% if products %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Code Produit</th>
-                        <th>Prix</th>
-                        <th>Description</th>
-                        <th>Date de création</th>
-                        <th>Actions</th> {# Nouvelle colonne pour les actions (détail, modifier) #}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for product in products %}
-                    <tr>
-                        <td>{{ product.name }}</td>
-                        <td>{{ product.product_code }}</td>
-                        <td>{{ product.price }} FDJ</td> {# Ajoutez votre devise locale #}
-                        <td>{{ product.description|default:"Pas de description" }}</td>
-                        <td>{{ product.created_at|date:"d M Y H:i" }}</td>
-                        <td>
-                            {# Ces liens seront fonctionnels une fois les vues et URLs créées #}
-                            <a href="{% url 'products:product_detail' product.pk %}">Voir</a> |
-                            <a href="{% url 'products:product_update' product.pk %}">Modifier</a>
-                            <a href="{% url 'products:product_delete' product.pk %}" style="color: red; text-decoration: none;">Supprimer</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p class="no-products">
-                Aucun produit n'est enregistré pour le moment.
-                <a href="{% url 'products:product_create' %}">Cliquez ici pour en ajouter un !</a>
-            </p>
-        {% endif %}
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
+                <div class="text-lg font-semibold text-gray-700 mb-4 sm:mb-0">
+                    {% if products %}
+                        Total: {{ products|length }} produit(s)
+                    {% endif %}
+                </div>
+                <a href="{% url 'products:product_create' %}" class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+                    <i class="fas fa-plus mr-2"></i> Ajouter un produit
+                </a>
+            </div>
 
-        <div class="back-link">
-            <p><a href="{% url 'core:home' %}">Retour à l'accueil</a></p>
+            {% if products %}
+                <div class="table-responsive">
+                    <table class="min-w-full bg-white rounded-lg overflow-hidden md:table">
+                        <thead class="bg-gray-200 hidden md:table-header-group">
+                            <tr class="text-left text-gray-600 uppercase text-sm leading-normal">
+                                <th class="py-3 px-6">Nom</th>
+                                <th class="py-3 px-6">Code Produit</th>
+                                <th class="py-3 px-6">Prix</th>
+                                <th class="py-3 px-6">Description</th>
+                                <th class="py-3 px-6">Date de création</th>
+                                <th class="py-3 px-6">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-600 text-sm font-light">
+                            {% for product in products %}
+                                <tr class="border-b border-gray-200 hover:bg-gray-100 flex flex-col md:table-row md:border-b">
+                                    <td class="py-3 px-6 md:table-cell" data-label="Nom">{{ product.name }}</td>
+                                    <td class="py-3 px-6 md:table-cell" data-label="Code">{{ product.product_code }}</td>
+                                    <td class="py-3 px-6 md:table-cell" data-label="Prix">{{ product.price }} FDJ</td>
+                                    <td class="py-3 px-6 md:table-cell" data-label="Description">
+                                        {{ product.description|default:"Pas de description" }}
+                                    </td>
+                                    <td class="py-3 px-6 md:table-cell" data-label="Date">{{ product.created_at|date:"d M Y" }}</td>
+                                    <td class="py-3 px-6 md:table-cell" data-label="Actions">
+                                        <div class="flex space-x-2 action-buttons-mobile">
+                                            <a href="{% url 'products:product_detail' product.pk %}" class="text-blue-600 hover:text-blue-800 transition-colors">
+                                                <i class="fas fa-eye"></i> Voir
+                                            </a>
+                                            <a href="{% url 'products:product_update' product.pk %}" class="text-green-600 hover:text-green-800 transition-colors">
+                                                <i class="fas fa-edit"></i> Modifier
+                                            </a>
+                                            <a href="{% url 'products:product_delete' product.pk %}" class="text-red-600 hover:text-red-800 transition-colors">
+                                                <i class="fas fa-trash-alt"></i> Supprimer
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center p-8 border-2 border-dashed border-gray-300 rounded-lg">
+                    <i class="fas fa-box-open text-gray-400 text-5xl mb-4"></i>
+                    <p class="text-gray-600 text-lg mb-2">Aucun produit n'est enregistré pour le moment.</p>
+                    <a href="{% url 'products:product_create' %}" class="text-blue-600 hover:text-blue-800 font-medium">
+                        Cliquez ici pour en ajouter un !
+                    </a>
+                </div>
+            {% endif %}
+
+            <div class="text-center mt-6">
+                <a href="{% url 'core:home' %}" class="text-gray-600 hover:text-gray-800 font-medium transition-colors">
+                    <i class="fas fa-arrow-left mr-1"></i> Retour à l'accueil
+                </a>
+            </div>
         </div>
     </div>
 </body>

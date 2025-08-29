@@ -1,249 +1,154 @@
+{% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page_title }} - Luanda Store</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #e9ecef;
-            margin: 0;
-            padding: 0;
-            color: #343a40;
-        }
-        .navbar {
-            background-color: #007bff;
-            padding: 1rem 0;
-        }
-        .navbar-brand {
-            color: #fff !important;
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-        .navbar-nav .nav-link {
-            color: #fff !important;
-            margin-right: 15px;
-        }
-        .navbar-nav .nav-link:hover {
-            color: #cce5ff !important;
-        }
-        .container-main {
-            padding-top: 50px;
-            padding-bottom: 50px;
-            max-width: 600px; /* Taille réduite pour les formulaires */
-        }
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        .card-header {
-            background-color: #007bff;
-            color: white;
-            text-align: center;
-            padding: 20px;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-        }
-        .card-header h2 {
-            margin-bottom: 0;
-            font-size: 2rem;
-            font-weight: 600;
-        }
-        .card-body {
-            padding: 30px;
-        }
-        .form-group label {
-            font-weight: bold;
-            color: #495057;
-            margin-bottom: 8px;
-        }
-        .form-control {
-            border-radius: 5px;
-            border: 1px solid #ced4da;
-            padding: 10px 15px;
-            box-shadow: none;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-        .form-control:focus {
-            border-color: #80bdff;
-            outline: 0;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-        }
-        .invalid-feedback {
-            display: block;
-            color: #dc3545;
-            font-size: 0.875em;
-            margin-top: 5px;
-        }
-        .form-text {
-            font-size: 0.875em;
-            color: #6c757d;
-        }
-        .btn-success {
-            background-color: #28a745;
-            border-color: #28a745;
-            padding: 12px 25px;
-            font-size: 1.1rem;
-            border-radius: 5px;
-            transition: background-color 0.2s ease;
-        }
-        .btn-success:hover {
-            background-color: #218838;
-            border-color: #1e7e34;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            border-color: #6c757d;
-            padding: 12px 25px;
-            font-size: 1.1rem;
-            border-radius: 5px;
-            transition: background-color 0.2s ease;
-        }
-        .btn-secondary:hover {
-            background-color: #5a6268;
-            border-color: #545b62;
-        }
-        .d-flex button, .d-flex a {
-            flex: 1;
-        }
-        .d-flex button + a, .d-flex a + button {
-            margin-left: 15px;
-        }
-        .footer {
-            text-align: center;
-            padding: 30px;
-            margin-top: 50px;
-            color: #6c757d;
-            font-size: 0.9em;
-            border-top: 1px solid #dee2e6;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'core:home' %}">Luanda Store</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+<body class="bg-gray-100 font-sans antialiased text-gray-800">
+
+    <nav class="bg-blue-600 shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a class="text-white text-2xl font-bold hover:text-blue-200 transition-colors" href="{% url 'core:home' %}">
+                <i class="fas fa-store mr-2"></i>Luanda Store
+            </a>
+            <button class="text-white lg:hidden focus:outline-none" id="mobile-menu-toggle">
+                <i class="fas fa-bars text-xl"></i>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mr-auto">
+            <div id="mobile-menu" class="hidden lg:flex flex-grow justify-end items-center space-x-6">
+                <ul class="flex flex-col lg:flex-row lg:space-x-6 lg:space-y-0 space-y-2 mt-4 lg:mt-0">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'core:home' %}">Accueil</a>
+                        <a class="text-white hover:text-blue-200 transition-colors" href="{% url 'core:home' %}">Accueil</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'products:product_list' %}">Produits</a>
+                        <a class="text-white hover:text-blue-200 transition-colors" href="{% url 'products:product_list' %}">Produits</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'core:boutique_list' %}">Boutiques</a>
-                    </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="{% url 'products:stock_list' %}">Stocks <span class="sr-only">(current)</span></a>
+                        <a class="text-white hover:text-blue-200 transition-colors" href="{% url 'core:boutique_list' %}">Boutiques</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'products:mouvement_stock_list' %}">Mouvements de Stock</a>
+                        <a class="text-white font-bold hover:text-blue-200 transition-colors" href="{% url 'products:stock_list' %}">Stocks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="text-white hover:text-blue-200 transition-colors" href="{% url 'products:mouvement_stock_list' %}">Mouvements</a>
                     </li>
                 </ul>
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <span class="nav-link">Bonjour, {{ user.username }}!</span>
-                    </li>
-                    <li class="nav-item">
-                        <form action="{% url 'users:logout' %}" method="post" class="form-inline my-2 my-lg-0">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-light my-2 my-sm-0">Déconnexion</button>
-                        </form>
-                    </li>
-                </ul>
+                <div class="flex items-center space-x-4 ml-0 lg:ml-6 mt-4 lg:mt-0">
+                    <span class="text-blue-100 hidden md:block">Bonjour, {{ user.username }}!</span>
+                    <form action="{% url 'users:logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                            Déconnexion
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container container-main">
-        <div class="card shadow-sm border-0">
-            <div class="card-header">
-                <h2>{{ page_title }}</h2>
+    <div class="container mx-auto mt-8 p-4 md:p-6 lg:p-8 flex justify-center">
+        <div class="bg-white rounded-xl shadow-xl p-6 sm:p-8 max-w-lg w-full">
+            <div class="text-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ page_title }}</h1>
+                <p class="text-gray-500">Ajouter ou modifier une entrée de stock.</p>
             </div>
-            <div class="card-body">
-                <form method="post" novalidate>
-                    {% csrf_token %}
-                    
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger" role="alert">
-                            {% for error in form.non_field_errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
+            
+            {% if form.non_field_errors %}
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+                    <p class="font-bold">Erreurs du formulaire :</p>
+                    <ul class="list-disc ml-5">
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="flex flex-col">
+                    <label for="{{ form.product.id_for_label }}" class="font-semibold text-gray-700 mb-2">{{ form.product.label }}</label>
+                    <select id="{{ form.product.id_for_label }}" name="{{ form.product.html_name }}" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                        {% for value, text in form.product.field.choices %}
+                            <option value="{{ value }}" {% if form.product.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ text }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.product.help_text %}
+                        <small class="text-gray-500 text-sm mt-1">{{ form.product.help_text }}</small>
                     {% endif %}
-
-                    {# Rendu spécifique pour le champ Produit (liste déroulante) #}
-                    <div class="form-group mb-3">
-                        {{ form.product.label_tag }}
-                        {{ form.product }} {# Ceci rendra directement le <select> avec les options #}
-                        {% if form.product.help_text %}
-                            <small class="form-text text-muted">{{ form.product.help_text }}</small>
-                        {% endif %}
+                    {% if form.product.errors %}
                         {% for error in form.product.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ error }}
-                            </div>
+                            <p class="text-red-500 text-sm mt-1">{{ error }}</p>
                         {% endfor %}
-                    </div>
+                    {% endif %}
+                </div>
 
-                    {# Rendu spécifique pour le champ Boutique (liste déroulante) #}
-                    <div class="form-group mb-3">
-                        {{ form.boutique.label_tag }}
-                        {{ form.boutique }} {# Ceci rendra directement le <select> avec les options #}
-                        {% if form.boutique.help_text %}
-                            <small class="form-text text-muted">{{ form.boutique.help_text }}</small>
-                        {% endif %}
+                <div class="flex flex-col">
+                    <label for="{{ form.boutique.id_for_label }}" class="font-semibold text-gray-700 mb-2">{{ form.boutique.label }}</label>
+                    <select id="{{ form.boutique.id_for_label }}" name="{{ form.boutique.html_name }}" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                        {% for value, text in form.boutique.field.choices %}
+                            <option value="{{ value }}" {% if form.boutique.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ text }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.boutique.help_text %}
+                        <small class="text-gray-500 text-sm mt-1">{{ form.boutique.help_text }}</small>
+                    {% endif %}
+                    {% if form.boutique.errors %}
                         {% for error in form.boutique.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ error }}
-                            </div>
+                            <p class="text-red-500 text-sm mt-1">{{ error }}</p>
                         {% endfor %}
-                    </div>
-
-                    {# Rendu spécifique pour le champ Quantity (input numérique) #}
-                    <div class="form-group mb-3">
-                        {{ form.quantity.label_tag }}
-                        <input type="number" 
-                               class="form-control {% if form.quantity.errors %}is-invalid{% endif %}" 
-                               id="{{ form.quantity.id_for_label }}" 
-                               name="{{ form.quantity.html_name }}" 
-                               value="{{ form.quantity.value|default_if_none:'' }}"
-                               {% if form.quantity.field.required %}required{% endif %} 
-                               min="0"> {# Ajout de min="0" pour une quantité non négative #}
-                        {% if form.quantity.help_text %}
-                            <small class="form-text text-muted">{{ form.quantity.help_text }}</small>
-                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <div class="flex flex-col">
+                    <label for="{{ form.quantity.id_for_label }}" class="font-semibold text-gray-700 mb-2">{{ form.quantity.label }}</label>
+                    <input type="number"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                           id="{{ form.quantity.id_for_label }}" 
+                           name="{{ form.quantity.html_name }}" 
+                           value="{{ form.quantity.value|default_if_none:'' }}"
+                           min="0">
+                    {% if form.quantity.help_text %}
+                        <small class="text-gray-500 text-sm mt-1">{{ form.quantity.help_text }}</small>
+                    {% endif %}
+                    {% if form.quantity.errors %}
                         {% for error in form.quantity.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ error }}
-                            </div>
+                            <p class="text-red-500 text-sm mt-1">{{ error }}</p>
                         {% endfor %}
-                    </div>
+                    {% endif %}
+                </div>
 
-                    <div class="d-flex justify-content-between mt-4">
-                        <button type="submit" class="btn btn-success btn-lg flex-grow-1 mr-2">Enregistrer</button>
-                        <a href="{% url 'products:stock_list' %}" class="btn btn-secondary btn-lg flex-grow-1 ml-2">Annuler</a>
-                    </div>
-                </form>
-            </div>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-6">
+                    <button type="submit" class="w-full sm:w-1/2 bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-save mr-2"></i> Enregistrer
+                    </button>
+                    <a href="{% url 'products:stock_list' %}" class="w-full sm:w-1/2 text-center bg-gray-400 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-500 transition-colors">
+                        <i class="fas fa-times-circle mr-2"></i> Annuler
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 
-    <footer class="footer">
-        <div class="container">
+    <footer class="bg-gray-800 text-white text-center p-4 mt-8">
+        <div class="container mx-auto">
             <p>&copy; 2025 Luanda Store. Tous droits réservés.</p>
         </div>
     </footer>
+    
+    <script>
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+
 </body>
 </html>
