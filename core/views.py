@@ -3,6 +3,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+
+from core.forms import BoutiqueForm
 from .models import Boutique
 from products.models import Produit, Stock, MouvementStock
 from django.db.models import Sum
