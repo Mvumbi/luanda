@@ -60,13 +60,12 @@
         {% endif %}
 
         <div class="mb-3">
-            {# C'est le LIEN correct pour ajouter une vente ! #}
             <a href="{% url 'sales:vente_create' %}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> {% trans "Ajouter une Nouvelle Vente" %}
             </a>
         </div>
 
-        {% if object_list %} {# object_list est le nom par défaut pour les objets retournés par ListView #}
+        {% if object_list %}
             <div class="card shadow-sm">
                 <div class="card-header">
                     {% trans "Ventes Enregistrées" %}
@@ -78,7 +77,7 @@
                                 <tr>
                                     <th>{% trans "ID Vente" %}</th>
                                     <th>{% trans "Date" %}</th>
-                                    <th>{% trans "Client" %}</th>
+                                    <th>{% trans "Vendeur" %}</th>
                                     <th>{% trans "Montant Total" %}</th>
                                     <th>{% trans "Actions" %}</th>
                                 </tr>
@@ -87,16 +86,19 @@
                                 {% for vente in object_list %}
                                     <tr>
                                         <td>{{ vente.pk }}</td>
-                                        <td>{{ vente.date_vente|date:"d/m/Y H:i" }}</td>
-                                        <td>{{ vente.client.full_name|default:"N/A" }}</td> {# Assurez-vous d'avoir un champ client ou adaptez #}
-                                        <td>{{ vente.montant_total }}</td>
+                                        <td>{{ vente.sale_date|date:"d/m/Y H:i" }}</td>
+                                        <td>{{ vente.seller.username|default:"N/A" }}</td>
+                                        <td>{{ vente.total_amount }}</td>
                                         <td>
                                             <a href="{% url 'sales:vente_detail' vente.pk %}" class="btn btn-info btn-sm">
                                                 <i class="fas fa-eye"></i> {% trans "Voir" %}
                                             </a>
-                                            {# Si tu as une vue d'édition de vente #}
                                             <a href="{% url 'sales:vente_edit' vente.pk %}" class="btn btn-warning btn-sm">
                                                 <i class="fas fa-edit"></i> {% trans "Modifier" %}
+                                            </a>
+                                            {# Ajout du bouton de suppression si besoin #}
+                                            <a href="{% url 'sales:vente_delete' vente.pk %}" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash-alt"></i> {% trans "Supprimer" %}
                                             </a>
                                         </td>
                                     </tr>
