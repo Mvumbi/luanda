@@ -4,7 +4,6 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone # Pour les timestamps précis
 
-# Importez les modèles nécessaires des autres applications
 from users.models import User # Votre modèle User personnalisé
 from core.models import Boutique # Le modèle Boutique
 from products.models import Produit # Le modèle Produit
@@ -64,6 +63,11 @@ class LigneVente(models.Model):
     # Méthode pour calculer le total de cette ligne
     @property
     def get_total_item_price(self):
+        return self.quantity * self.price_at_sale
+    
+    @property
+    def subtotal(self):
+        """Calcule et retourne le sous-total pour cette ligne de vente."""
         return self.quantity * self.price_at_sale
 
 

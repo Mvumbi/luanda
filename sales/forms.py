@@ -1,12 +1,17 @@
 from django import forms
-from .models import Vente, LigneVente # Importe tes modèles de vente
-from products.models import Produit # Importe le modèle Produit
-from core.models import Boutique # Assure-toi que ce chemin est correct pour ton modèle Boutique
+from .models import Vente, LigneVente
+from products.models import Produit
+from core.models import Boutique
 
 class VenteForm(forms.ModelForm):
+    """
+    Formulaire pour la création et la mise à jour du modèle Vente.
+    """
     class Meta:
         model = Vente
-        # Le champ 'notes' a été retiré, car il n'est pas dans ton modèle Vente
+        # Le champ 'seller' est omis car il sera automatiquement défini par la vue (request.user)
+        # Le champ 'sale_date' est géré par la valeur par défaut du modèle
+        # Le champ 'total_amount' est calculé et mis à jour dans la vue
         fields = ['boutique'] 
         widgets = {
             'boutique': forms.Select(attrs={'class': 'form-control'}), 
@@ -16,6 +21,11 @@ class VenteForm(forms.ModelForm):
         }
 
 class LigneVenteForm(forms.ModelForm):
+    """
+    Formulaire pour la création et la mise à jour du modèle LigneVente.
+    Ce formulaire est destiné à être utilisé dans un formset.
+    """
+    # Ce champ est nécessaire pour la sélection du produit dans le formset
     product = forms.ModelChoiceField(
         queryset=Produit.objects.all().order_by('name'),
         label="Produit",
@@ -32,7 +42,7 @@ class LigneVenteForm(forms.ModelForm):
                 'step': '0.01', 
                 'placeholder': 'Prix unitaire',
                 'class': 'form-control',
-                'readonly': 'readonly'
+                'readonly': 'readonly'  # Le prix est affiché mais non modifiable par l'utilisateur
             }),
         }
         labels = {
