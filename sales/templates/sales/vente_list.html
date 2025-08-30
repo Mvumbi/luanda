@@ -8,13 +8,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
-        /* Styles pour les animations et les boutons de filtre */
+        /* Les styles personnalisés ont été conservés pour la mise en page générale */
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in-down { animation: fadeInDown 0.5s ease-out forwards; }
-        .filter-btn.active { background-color: #d1d5db; border-color: #9ca3af; font-weight: 600; color: #1f2937; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans min-h-screen flex flex-col">
@@ -50,24 +49,7 @@
             <a href="{% url 'sales:vente_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                 <i class="fas fa-plus mr-2"></i> {% trans "Ajouter une Nouvelle Vente" %}
             </a>
-            <div class="flex items-center space-x-2 bg-gray-200 p-1 rounded-full shadow-inner">
-                <button class="filter-btn text-sm px-4 py-2 rounded-full font-medium text-gray-700 bg-white hover:bg-gray-100 transition-colors duration-200 active" data-filter="all">
-                    {% trans "Tout" %}
-                </button>
-                <button class="filter-btn text-sm px-4 py-2 rounded-full font-medium text-gray-700 bg-white hover:bg-gray-100 transition-colors duration-200" data-filter="daily">
-                    <i class="fas fa-sun text-yellow-500 mr-2"></i>{% trans "Jour" %}
-                </button>
-                <button class="filter-btn text-sm px-4 py-2 rounded-full font-medium text-gray-700 bg-white hover:bg-gray-100 transition-colors duration-200" data-filter="weekly">
-                    <i class="fas fa-calendar-week text-green-500 mr-2"></i>{% trans "Semaine" %}
-                </button>
-                <button class="filter-btn text-sm px-4 py-2 rounded-full font-medium text-gray-700 bg-white hover:bg-gray-100 transition-colors duration-200" data-filter="monthly">
-                    <i class="fas fa-calendar-alt text-blue-500 mr-2"></i>{% trans "Mois" %}
-                </button>
-                <button class="filter-btn text-sm px-4 py-2 rounded-full font-medium text-gray-700 bg-white hover:bg-gray-100 transition-colors duration-200" data-filter="annual">
-                    <i class="fas fa-calendar-check text-purple-500 mr-2"></i>{% trans "Année" %}
-                </button>
             </div>
-        </div>
 
         {% if ventes %}
             <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl">
@@ -84,11 +66,7 @@
                         </thead>
                         <tbody class="divide-y divide-gray-200">
                             {% for vente in ventes %}
-                                <tr class="sale-row" 
-                                    data-year="{{ vente.sale_date|date:'Y' }}" 
-                                    data-month="{{ vente.sale_date|date:'m' }}" 
-                                    data-week="{{ vente.sale_date|date:'W' }}" 
-                                    data-day="{{ vente.sale_date|date:'d' }}">
+                                <tr class="sale-row">
                                     <td class="py-4 px-6 text-sm font-medium text-gray-800">{{ vente.boutique.name }}</td>
                                     <td class="py-4 px-6 text-sm text-gray-700">{{ vente.sale_date|date:"d M Y, H:i" }}</td>
                                     <td class="py-4 px-6 text-sm text-gray-700">{{ vente.seller.username|default:"N/A" }}</td>
@@ -119,104 +97,5 @@
         </div>
     </footer>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        const salesRows = document.querySelectorAll('.sale-row');
-        const salesCards = document.querySelectorAll('.sale-card');
-
-        function filterSales(filter) {
-            const today = new Date();
-            const currentYear = today.getFullYear();
-            const currentMonth = today.getMonth() + 1; // Mois commence à 0 en JavaScript
-            const currentDay = today.getDate();
-            const currentWeek = getWeekNumber(today);
-
-            salesRows.forEach(row => {
-                const rowYear = parseInt(row.dataset.year, 10);
-                const rowMonth = parseInt(row.dataset.month, 10);
-                const rowWeek = parseInt(row.dataset.week, 10);
-                const rowDay = parseInt(row.dataset.day, 10);
-
-                let shouldShow = false;
-
-                switch (filter) {
-                    case 'all':
-                        shouldShow = true;
-                        break;
-                    case 'daily':
-                        shouldShow = (rowYear === currentYear && rowMonth === currentMonth && rowDay === currentDay);
-                        break;
-                    case 'weekly':
-                        shouldShow = (rowYear === currentYear && rowWeek === currentWeek);
-                        break;
-                    case 'monthly':
-                        shouldShow = (rowYear === currentYear && rowMonth === currentMonth);
-                        break;
-                    case 'annual':
-                        shouldShow = (rowYear === currentYear);
-                        break;
-                }
-
-                row.style.display = shouldShow ? '' : 'none';
-            });
-
-            salesCards.forEach(card => {
-                const cardYear = parseInt(card.dataset.year, 10);
-                const cardMonth = parseInt(card.dataset.month, 10);
-                const cardWeek = parseInt(card.dataset.week, 10);
-                const cardDay = parseInt(card.dataset.day, 10);
-
-                let shouldShow = false;
-
-                switch (filter) {
-                    case 'all':
-                        shouldShow = true;
-                        break;
-                    case 'daily':
-                        shouldShow = (cardYear === currentYear && cardMonth === currentMonth && cardDay === currentDay);
-                        break;
-                    case 'weekly':
-                        shouldShow = (cardYear === currentYear && cardWeek === currentWeek);
-                        break;
-                    case 'monthly':
-                        shouldShow = (cardYear === currentYear && cardMonth === currentMonth);
-                        break;
-                    case 'annual':
-                        shouldShow = (cardYear === currentYear);
-                        break;
-                }
-
-                card.style.display = shouldShow ? 'block' : 'none';
-            });
-        }
-
-        // Fonction pour calculer le numéro de semaine (ISO 8601)
-        function getWeekNumber(d) {
-            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-            var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-            var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-            return weekNo;
-        }
-
-        filterButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                filterButtons.forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-                const filter = this.dataset.filter;
-                filterSales(filter);
-            });
-        });
-
-        // Applique le filtre "Tout" par défaut au chargement de la page
-        const defaultButton = document.querySelector('.filter-btn[data-filter="all"]');
-        if (defaultButton) {
-            defaultButton.classList.add('active');
-            filterSales('all');
-        }
-    });
-</script>
-
-</body>
+    </body>
 </html>
